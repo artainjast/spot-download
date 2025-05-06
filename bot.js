@@ -208,8 +208,6 @@ async function downloadWithRapidAPI(spotifyUrl) {
   };
 
   try {
-    console.log(options);
-
     const response = await axios.request(options);
     return response.data;
   } catch (error) {
