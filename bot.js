@@ -107,7 +107,7 @@ bot.on("message", async (msg) => {
           await bot.sendAudio(chatId, localPath, {
             title: trackData.data.title,
             performer: trackData.data.artist,
-            caption: `🎵 ${trackData.data.title} - ${trackData.data.artist}`,
+            caption: `🎵 ${trackData.data.title} - ${trackData.data.artist} , labadabadbdab i have file🤑`,
             thumb: trackData.data.cover,
           });
 
