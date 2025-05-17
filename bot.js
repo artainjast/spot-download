@@ -2,6 +2,7 @@ const TelegramBot = require("node-telegram-bot-api");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
+const http = require("http");
 require("dotenv").config(); // Load environment variables from .env file
 
 // Create a new bot instance
@@ -15,6 +16,16 @@ const tempDir = path.join(__dirname, "temp");
 if (!fs.existsSync(tempDir)) {
   fs.mkdirSync(tempDir);
 }
+
+const PORT = process.env.PORT || 3000;
+http
+  .createServer((req, res) => {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("Bot is running\n");
+  })
+  .listen(PORT, () => {
+    console.log(`Dummy server listening on port ${PORT}`);
+  });
 
 // Listen for messages
 bot.on("message", async (msg) => {
