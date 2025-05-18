@@ -66,8 +66,6 @@ bot.on("message", async (msg) => {
         }
       }
 
-      console.log("trackData", trackData);
-
       // Check for RapidAPI success format
       if (
         trackData &&
@@ -100,7 +98,9 @@ bot.on("message", async (msg) => {
 
           await new Promise((resolve, reject) => {
             writer.on("finish", resolve);
-            writer.on("error", reject);
+            writer.on("error", async () =>{
+              await bot.sendMessage(chatId , `this is link ${trackData?.data?.downloadLink}`)
+            });
           });
 
           // Send the audio file from local path
