@@ -65,14 +65,11 @@ main() {
 		exit 6
 	}
 
-	ssh -i "${SSH_KEY_PATH}" "${ssh}" "bash -s" || {
+	ssh -i "${SSH_KEY_PATH}" "${ssh}" "/usr/bin/bash -s" \
+		<./ci/cloud-deploy || {
 		echo "error: failed deploying to cloud" >&2
 		exit 7
-	} <<-EOF
-		cd "$dir"
-		sudo docker load -i spot-download.tar
-		sudo systemctl restart spot-download.service
-	EOF
+	}
 
 	exit 0
 }
