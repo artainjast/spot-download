@@ -1,0 +1,9 @@
+services:
+  spot-download:
+    image: spot-download:latest
+    container_name: spot-download
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env

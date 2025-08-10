@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+docker build -t spot-download:latest .
+docker save spot-download:latest -o spot-download.tar
