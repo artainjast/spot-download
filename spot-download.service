@@ -1,0 +1,15 @@
+[Unit]
+Description=My Docker Container Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+Restart=always
+WorkingDirectory=/home/arta/spot-download
+ExecStart=/usr/bin/docker-compose up
+
+[Install]
+WantedBy=multi-user.target
+
+# vi: ft=systemd
