@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+cp spot-download.service /etc/systemd/system/ &&
+	systemctl enable spot-download.service
+
+{
+	cat /etc/sudoers | grep -v arta
+	echo 'arta ALL= NOPASSWD: /bin/systemctl start spot-download.service, /bin/systemctl stop spot-download.service, /bin/systemctl enable spot-download.service, /bin/systemctl restart spot-download.service, docker load -i spot-download.tar'
+} >/etc/sudoers
