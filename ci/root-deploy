@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 
 mkdir /root/spot-download
-cp docker-compose.yml /root/spot-download &&
-	cp spot-download.service /etc/systemd/system/ &&
+cp ./ci/docker-compose.yml /root/spot-download &&
+	cp ./ci/spot-download.service /etc/systemd/system/ &&
 	systemctl enable spot-download.service || {
 	echo "error: failed installing files" >&2
 
