@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+mkdir /root/spot-download
+cp ./ci/docker-compose.yml /root/spot-download &&
+	cp ./ci/spot-download.service /etc/systemd/system/ &&
+	systemctl enable spot-download.service || {
+	echo "error: failed installing files" >&2
+
+	exit 1
+}
+
+{
+	cat /etc/sudoers | grep -v '^arta'
+	echo 'arta ALL= NOPASSWD: /usr/bin/systemctl start spot-download.service, /usr/bin/systemctl stop spot-download.service, /usr/bin/systemctl enable spot-download.service, /usr/bin/systemctl restart spot-download.service, /usr/bin/docker load -i spot-download.tar'
+} >/etc/sudoers

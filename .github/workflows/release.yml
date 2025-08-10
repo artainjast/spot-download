@@ -1,0 +1,35 @@
+name: Build and Release SpotDownload
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    name: Build And Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Build
+        run: ./ci/build
+
+      - name: Set SSH_KEY_PATH env
+        run: echo "SSH_KEY_PATH=$HOME/.ssh/spot-download" >> $GITHUB_ENV
+
+      - name: Deploy
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          PORT: 3000
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
+          RAPIDAPI_HOST: ${{ secrets.RAPIDAPI_HOST }}
+          ZYLA_API_KEY: ${{ secrets.ZYLA_API_KEY }}
+          CLOUD: ${{ secrets.CLOUD }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: ./ci/deploy

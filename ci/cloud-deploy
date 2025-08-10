@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+cd "${HOME}/spot-download"
+sudo docker load -i spot-download.tar
+sudo systemctl restart spot-download.service
