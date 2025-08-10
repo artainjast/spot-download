@@ -3,7 +3,15 @@ services:
     image: spot-download:latest
     container_name: spot-download
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     env_file:
-      - deploy.env
+      - /home/arta/spot-download/deploy.env
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 100M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

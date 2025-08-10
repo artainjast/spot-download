@@ -1,7 +1,13 @@
 #!/usr/bin/env sh
 
-cp spot-download.service /etc/systemd/system/ &&
-	systemctl enable spot-download.service
+mkdir /root/spot-download
+cp docker-compose.yml /root/spot-download &&
+	cp spot-download.service /etc/systemd/system/ &&
+	systemctl enable spot-download.service || {
+	echo "error: failed installing files" >&2
+
+	exit 1
+}
 
 {
 	cat /etc/sudoers | grep -v '^arta'

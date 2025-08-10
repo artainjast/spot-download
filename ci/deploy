@@ -59,7 +59,7 @@ main() {
 		exit 5
 	}
 
-	rsync -avt spot-download.tar docker-compose.yml deploy.env \
+	rsync -avt spot-download.tar deploy.env \
 		-e "ssh -i ${SSH_KEY_PATH}" "${dir}" --info=progress2 || {
 		echo "error: failed copying files to cloud" >&2
 		exit 6

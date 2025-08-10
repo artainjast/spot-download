@@ -6,7 +6,7 @@ Requires=docker.service
 [Service]
 Type=simple
 Restart=always
-WorkingDirectory=/home/arta/spot-download
+WorkingDirectory=/root/spot-download
 ExecStart=/usr/bin/docker-compose up
 
 [Install]
