@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+assert_env() {
+	local var="$1"
+	local val="${!var}"
+
+	if [ -z "${val}" ]; then
+		echo "error: environment variable \"$var\" is not set" >&2
+		exit 1
+	fi
+}
+
+gen_env() {
+	cat >deploy.env <<-EOF
+		TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+		PORT=${PORT}
+		RAPIDAPI_KEY=${RAPIDAPI_KEY}
+		RAPIDAPI_HOST=${RAPIDAPI_HOST}
+		ZYLA_API_KEY=${ZYLA_API_KEY}
+	EOF
+}
+
+main() {
+	assert_env TELEGRAM_BOT_TOKEN
+	assert_env PORT
+	assert_env RAPIDAPI_KEY
+	assert_env RAPIDAPI_HOST
+	assert_env ZYLA_API_KEY
+	assert_env CLOUD
+	assert_env SSH_KEY
+	assert_env SSH_KEY_PATH
+	assert_env SSH_USER
+
+	gen_env || {
+		echo "error: failed generating environment variables file" >&2
+		exit 2
+	}
+
+	if ! which rsync 2>&1 >/dev/null; then
+		apt install -y rsync || {
+			echo "error: downloading rsync failed" >&2
+			exit 3
+		}
+	fi
+
+	mkdir -p "$(dirname ${SSH_KEY_PATH})"
+	echo "${SSH_KEY}" >"${SSH_KEY_PATH}" &&
+		chmod 600 "${SSH_KEY_PATH}" &&
+		ssh-keyscan "${CLOUD}" >>"${HOME}/.ssh/known_hosts" || {
+		echo "error: failed setting up ssh stuff" >&2
+		exit 4
+	}
+
+	local ssh="${SSH_USER}@${CLOUD}"
+	local dir="${ssh}:/home/${SSH_USER}/spot-download"
+
+	ssh -i "${SSH_KEY_PATH}" "${ssh}" "mkdir -p \"$dir\"" || {
+		echo "error: failed creating directory on cloud machine" >&2
+		exit 5
+	}
+
+	rsync -avt spot-download.tar docker-compose.yml deploy.env \
+		-e "ssh -i ${SSH_KEY_PATH}" "${dir}" --info=progress2 || {
+		echo "error: failed copying files to cloud" >&2
+		exit 6
+	}
+
+	ssh -i "${SSH_KEY_PATH}" "${ssh}" "bash -s" || {
+		echo "error: failed deploying to cloud" >&2
+		exit 7
+	} <<-EOF
+		cd "$dir"
+		sudo docker load -i spot-download.tar
+		sudo systemctl restart spot-download.service
+	EOF
+
+	exit 0
+}
+
+main
