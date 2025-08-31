@@ -1,15 +1,30 @@
 #!/usr/bin/env sh
 
-mkdir /root/spot-download
-cp ./ci/docker-compose.yml /root/spot-download &&
-	cp ./ci/spot-download.service /etc/systemd/system/ &&
-	systemctl enable spot-download.service || {
-	echo "error: failed installing files" >&2
+main() {
+	if [ -f "/usr/bin/docker" ]; then
+		echo "install docker first" >&2
+		return 1
+	fi
 
-	exit 1
+	user="------ USER ------"
+	auth=/home/$user/.ssh/authorized_keys
+
+	useradd -m $user -s /bin/bash
+	mkdir -p "$(dirname $auth)"
+	touch "$auth"
+	chown $user:$user "$auth"
+	echo 'ssh-ed25519 ------ SSH_PUBLIC_KEY ------' >"$auth"
+
+	mkdir /root/spot-download
+	cp ./ci/docker-compose.yml /root/spot-download &&
+		cp ./ci/spot-download.service /etc/systemd/system/ &&
+		systemctl enable spot-download.service || {
+		echo "error: failed installing files" >&2
+
+		return 2
+	}
+
+	echo "$user ALL= NOPASSWD: /usr/bin/systemctl start spot-download.service, /usr/bin/systemctl stop spot-download.service, /usr/bin/systemctl enable spot-download.service, /usr/bin/systemctl restart spot-download.service, /usr/bin/docker load -i spot-download.tar" >/etc/sudoers.d/$user
 }
 
-{
-	cat /etc/sudoers | grep -v '^arta'
-	echo 'arta ALL= NOPASSWD: /usr/bin/systemctl start spot-download.service, /usr/bin/systemctl stop spot-download.service, /usr/bin/systemctl enable spot-download.service, /usr/bin/systemctl restart spot-download.service, /usr/bin/docker load -i spot-download.tar'
-} >/etc/sudoers
+main
